@@ -7,8 +7,9 @@ import { Colors } from '@/constants/theme';
 import { Spacing } from '@/constants/spacing';
 import { useDashboard } from '@/hooks/use-dashboard';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 
 export default function HomeScreen() {
   const { userName, goal, recentRecords, progressRatio, remainingMinutes, formattedDate } =
@@ -16,6 +17,7 @@ export default function HomeScreen() {
   const scheme = useColorScheme() ?? 'light';
   const colors = Colors[scheme];
   const insets = useSafeAreaInsets();
+  const router = useRouter();
 
   return (
     <ScrollView
@@ -37,7 +39,7 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.section}>
-        <StartStudyButton onPress={() => Alert.alert('Iniciar Estudo', 'Em breve!')} />
+        <StartStudyButton onPress={() => router.push('/iniciar-estudo')} />
       </View>
 
       <View style={styles.section}>
