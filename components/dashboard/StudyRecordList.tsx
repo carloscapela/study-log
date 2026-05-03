@@ -1,62 +1,79 @@
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import type { StudyRecord } from '@/types/study';
-import { StyleSheet, Text, View } from 'react-native';
-import { StudyRecordItem } from './StudyRecordItem';
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import type { StudySessionWithSubject } from "@/types/study";
+import { StyleSheet, Text, View } from "react-native";
+import { StudyRecordItem } from "./StudyRecordItem";
 
 interface Props {
-  records: StudyRecord[];
+    records: StudySessionWithSubject[];
 }
 
 export function StudyRecordList({ records }: Props) {
-  const scheme = useColorScheme() ?? 'light';
-  const colors = Colors[scheme];
+    const scheme = useColorScheme() ?? "light";
+    const colors = Colors[scheme];
 
-  return (
-    <View>
-      <Text style={[styles.sectionTitle, { color: colors.subtext }]}>Últimos Registros</Text>
-      <View style={[styles.list, { backgroundColor: colors.cardBackground }]}>
-        {records.length === 0 ? (
-          <View style={styles.empty}>
-            <Text style={[styles.emptyText, { color: colors.subtext }]}>
-              Nenhum registro ainda. Comece a estudar!
+    return (
+        <View>
+            <Text style={[styles.sectionTitle, { color: colors.subtext }]}>
+                Últimos Registros
             </Text>
-          </View>
-        ) : (
-          records.map((record, index) => (
-            <View key={record.id}>
-              <StudyRecordItem record={record} />
-              {index < records.length - 1 && (
-                <View style={[styles.separator, { backgroundColor: colors.separator }]} />
-              )}
+            <View
+                style={[
+                    styles.list,
+                    { backgroundColor: colors.cardBackground },
+                ]}
+            >
+                {records.length === 0 ? (
+                    <View style={styles.empty}>
+                        <Text
+                            style={[
+                                styles.emptyText,
+                                { color: colors.subtext },
+                            ]}
+                        >
+                            Nenhum registro ainda. Comece a estudar!
+                        </Text>
+                    </View>
+                ) : (
+                    records.map((record, index) => (
+                        <View key={record.id.toString()}>
+                            <StudyRecordItem record={record} />
+                            {index < records.length - 1 && (
+                                <View
+                                    style={[
+                                        styles.separator,
+                                        { backgroundColor: colors.separator },
+                                    ]}
+                                />
+                            )}
+                        </View>
+                    ))
+                )}
             </View>
-          ))
-        )}
-      </View>
-    </View>
-  );
+        </View>
+    );
 }
 
 const styles = StyleSheet.create({
-  sectionTitle: {
-    fontSize: 11,
-    fontWeight: '600',
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-    marginBottom: 8,
-  },
-  list: {
-    borderRadius: 14,
-    paddingHorizontal: 16,
-  },
-  empty: {
-    paddingVertical: 20,
-    alignItems: 'center',
-  },
-  emptyText: {
-    fontSize: 14,
-  },
-  separator: {
-    height: 1,
-  },
+    sectionTitle: {
+        fontSize: 11,
+        fontWeight: "600",
+        letterSpacing: 0.8,
+        textTransform: "uppercase",
+        marginBottom: 8,
+    },
+    list: {
+        borderRadius: 14,
+        paddingHorizontal: 16,
+    },
+    empty: {
+        paddingVertical: 20,
+        alignItems: "center",
+    },
+    emptyText: {
+        fontSize: 14,
+    },
+    separator: {
+        height: 1,
+    },
 });

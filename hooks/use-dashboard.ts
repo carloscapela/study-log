@@ -4,7 +4,7 @@ import {
   getTodayTotalMinutes,
 } from "@/database/repositories/study-session-repository";
 import { getFirstUser } from "@/database/repositories/user-repository";
-import type { StudyRecord } from "@/types/study";
+import type { StudySessionWithSubject } from "@/types/study";
 import { useFocusEffect } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { useCallback, useState } from "react";
@@ -44,7 +44,7 @@ export interface DashboardResult {
     userName: string;
     nickname: string;
     goal: { targetMinutes: number; studiedMinutes: number };
-    recentRecords: StudyRecord[];
+    recentRecords: StudySessionWithSubject[];
     progressRatio: number;
     remainingMinutes: number;
     formattedDate: string;
@@ -57,7 +57,7 @@ export function useDashboard(): DashboardResult {
     const [nickname, setNickname] = useState("");
     const [studiedMinutes, setStudiedMinutes] = useState(0);
     const [targetMinutes, setTargetMinutes] = useState(DEFAULT_TARGET_MINUTES);
-    const [recentRecords, setRecentRecords] = useState<StudyRecord[]>([]);
+    const [recentRecords, setRecentRecords] = useState<StudySessionWithSubject[]>([]);
     const [loading, setLoading] = useState(true);
 
     useFocusEffect(
@@ -77,16 +77,7 @@ export function useDashboard(): DashboardResult {
                 setNickname(user?.nickname ?? "");
                 setStudiedMinutes(todayMinutes);
                 setTargetMinutes(activeGoal?.dailyMinutes ?? DEFAULT_TARGET_MINUTES);
-                setRecentRecords(
-                    sessions.map((s) => ({
-                        id: String(s.id),
-                        subject: s.subjectName,
-                        topic: s.notes ?? "",
-                        durationMinutes: s.durationMinutes,
-                        startedAt: s.startedAt,
-                        iconLetter: s.subjectIconLetter,
-                    })),
-                );
+                setRecentRecords(sessions);
                 setLoading(false);
             }
 
