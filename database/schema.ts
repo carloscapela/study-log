@@ -27,4 +27,16 @@ export const MIGRATIONS = [
 
   `CREATE INDEX IF NOT EXISTS idx_study_sessions_started_at
     ON study_sessions(started_at)`,
+
+  `CREATE TABLE IF NOT EXISTS study_goals (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    contest_name TEXT NOT NULL,
+    daily_minutes INTEGER NOT NULL,
+    status TEXT NOT NULL DEFAULT 'active',
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  )`,
+
+  `CREATE INDEX IF NOT EXISTS idx_study_goals_user_status
+    ON study_goals(user_id, status)`,
 ];

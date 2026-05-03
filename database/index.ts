@@ -12,3 +12,4 @@ export async function initDatabase(db: SQLiteDatabase): Promise<void> {
 export * from './repositories/user-repository';
 export * from './repositories/subject-repository';
 export * from './repositories/study-session-repository';
+export * from './repositories/study-goal-repository';
