@@ -16,14 +16,22 @@ export function StudyRecordList({ records }: Props) {
     <View>
       <Text style={[styles.sectionTitle, { color: colors.subtext }]}>Últimos Registros</Text>
       <View style={[styles.list, { backgroundColor: colors.cardBackground }]}>
-        {records.map((record, index) => (
-          <View key={record.id}>
-            <StudyRecordItem record={record} />
-            {index < records.length - 1 && (
-              <View style={[styles.separator, { backgroundColor: colors.separator }]} />
-            )}
+        {records.length === 0 ? (
+          <View style={styles.empty}>
+            <Text style={[styles.emptyText, { color: colors.subtext }]}>
+              Nenhum registro ainda. Comece a estudar!
+            </Text>
           </View>
-        ))}
+        ) : (
+          records.map((record, index) => (
+            <View key={record.id}>
+              <StudyRecordItem record={record} />
+              {index < records.length - 1 && (
+                <View style={[styles.separator, { backgroundColor: colors.separator }]} />
+              )}
+            </View>
+          ))
+        )}
       </View>
     </View>
   );
@@ -40,6 +48,13 @@ const styles = StyleSheet.create({
   list: {
     borderRadius: 14,
     paddingHorizontal: 16,
+  },
+  empty: {
+    paddingVertical: 20,
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: 14,
   },
   separator: {
     height: 1,

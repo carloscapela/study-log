@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
 export default function HomeScreen() {
-  const { userName, goal, recentRecords, progressRatio, remainingMinutes, formattedDate } =
+  const { userName, nickname, goal, recentRecords, progressRatio, remainingMinutes, formattedDate } =
     useDashboard();
   const scheme = useColorScheme() ?? 'light';
   const colors = Colors[scheme];
@@ -28,7 +28,7 @@ export default function HomeScreen() {
       ]}
       showsVerticalScrollIndicator={false}
     >
-      <DashboardHeader userName={userName} formattedDate={formattedDate} />
+      <DashboardHeader userName={userName} nickname={nickname} formattedDate={formattedDate} />
 
       <View style={styles.section}>
         <StatsRow goal={goal} />

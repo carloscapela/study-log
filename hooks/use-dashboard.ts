@@ -1,6 +1,12 @@
-import { MOCK_DAILY_GOAL, MOCK_STUDY_RECORDS, MOCK_USER_NAME } from '@/data/mock-study-data';
-import type { DashboardData } from '@/types/study';
-import { useMemo } from 'react';
+import { getFirstUser } from '@/database/repositories/user-repository';
+import {
+  getRecentSessions,
+  getTodayTotalMinutes,
+} from '@/database/repositories/study-session-repository';
+import type { StudyRecord } from '@/types/study';
+import { useFocusEffect } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
+import { useCallback, useState } from 'react';
 
 export function formatMinutes(minutes: number): string {
   const h = Math.floor(minutes / 60);
@@ -31,25 +37,73 @@ export function formatRecordTime(isoString: string): string {
   return `${isToday ? 'hoje' : 'ontem'}, ${hh}:${mm}`;
 }
 
-interface DashboardResult extends DashboardData {
+const TARGET_MINUTES = 180;
+
+export interface DashboardResult {
+  userName: string;
+  nickname: string;
+  goal: { targetMinutes: number; studiedMinutes: number };
+  recentRecords: StudyRecord[];
   progressRatio: number;
   remainingMinutes: number;
   formattedDate: string;
+  loading: boolean;
 }
 
 export function useDashboard(): DashboardResult {
-  return useMemo(() => {
-    const goal = MOCK_DAILY_GOAL;
-    const progressRatio = Math.min(goal.studiedMinutes / goal.targetMinutes, 1);
-    const remainingMinutes = Math.max(goal.targetMinutes - goal.studiedMinutes, 0);
+  const db = useSQLiteContext();
+  const [userName, setUserName] = useState('');
+  const [nickname, setNickname] = useState('');
+  const [studiedMinutes, setStudiedMinutes] = useState(0);
+  const [recentRecords, setRecentRecords] = useState<StudyRecord[]>([]);
+  const [loading, setLoading] = useState(true);
 
-    return {
-      userName: MOCK_USER_NAME,
-      goal,
-      recentRecords: MOCK_STUDY_RECORDS,
-      progressRatio,
-      remainingMinutes,
-      formattedDate: formatDate(new Date()),
-    };
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+
+      async function load() {
+        setLoading(true);
+        const [user, todayMinutes, sessions] = await Promise.all([
+          getFirstUser(db),
+          getTodayTotalMinutes(db),
+          getRecentSessions(db),
+        ]);
+        if (!active) return;
+        setUserName(user?.name ?? '');
+        setNickname(user?.nickname ?? '');
+        setStudiedMinutes(todayMinutes);
+        setRecentRecords(
+          sessions.map(s => ({
+            id: String(s.id),
+            subject: s.subjectName,
+            topic: s.notes ?? '',
+            durationMinutes: s.durationMinutes,
+            startedAt: s.startedAt,
+            iconLetter: s.subjectIconLetter,
+          }))
+        );
+        setLoading(false);
+      }
+
+      load();
+      return () => {
+        active = false;
+      };
+    }, [db])
+  );
+
+  const progressRatio = Math.min(studiedMinutes / TARGET_MINUTES, 1);
+  const remainingMinutes = Math.max(TARGET_MINUTES - studiedMinutes, 0);
+
+  return {
+    userName,
+    nickname,
+    goal: { targetMinutes: TARGET_MINUTES, studiedMinutes },
+    recentRecords,
+    progressRatio,
+    remainingMinutes,
+    formattedDate: formatDate(new Date()),
+    loading,
+  };
 }
