@@ -1,6 +1,6 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
-export type GoalStatus = 'active' | 'archived';
+export type GoalStatus = 'active' | 'paused' | 'completed';
 
 export interface StudyGoal {
   id: number;
@@ -31,15 +31,17 @@ function toGoal(row: GoalRow): StudyGoal {
   };
 }
 
+export async function getAllGoals(db: SQLiteDatabase): Promise<StudyGoal[]> {
+  const rows = await db.getAllAsync<GoalRow>(
+    `SELECT * FROM study_goals ORDER BY created_at DESC`
+  );
+  return rows.map(toGoal);
+}
+
 export async function createGoal(
   db: SQLiteDatabase,
   data: { userId: number; contestName: string; dailyMinutes: number }
 ): Promise<StudyGoal> {
-  await db.runAsync(
-    `UPDATE study_goals SET status = 'archived' WHERE user_id = ? AND status = 'active'`,
-    data.userId
-  );
-
   const result = await db.runAsync(
     `INSERT INTO study_goals (user_id, contest_name, daily_minutes, status)
      VALUES (?, ?, ?, 'active')`,
@@ -47,7 +49,6 @@ export async function createGoal(
     data.contestName,
     data.dailyMinutes
   );
-
   const row = await db.getFirstAsync<GoalRow>(
     'SELECT * FROM study_goals WHERE id = ?',
     result.lastInsertRowId
@@ -79,22 +80,18 @@ export async function getUserGoals(db: SQLiteDatabase, userId: number): Promise<
   return rows.map(toGoal);
 }
 
-export async function archiveGoal(db: SQLiteDatabase, id: number): Promise<void> {
-  await db.runAsync(`UPDATE study_goals SET status = 'archived' WHERE id = ?`, id);
-}
-
-export async function activateGoal(db: SQLiteDatabase, id: number, userId: number): Promise<void> {
-  await db.runAsync(
-    `UPDATE study_goals SET status = 'archived' WHERE user_id = ? AND status = 'active'`,
-    userId
-  );
-  await db.runAsync(`UPDATE study_goals SET status = 'active' WHERE id = ?`, id);
+export async function setGoalStatus(
+  db: SQLiteDatabase,
+  id: number,
+  status: GoalStatus
+): Promise<void> {
+  await db.runAsync(`UPDATE study_goals SET status = ? WHERE id = ?`, status, id);
 }
 
 export async function updateGoal(
   db: SQLiteDatabase,
   id: number,
-  data: Partial<Pick<StudyGoal, 'contestName' | 'dailyMinutes'>>
+  data: Partial<Pick<StudyGoal, 'contestName' | 'dailyMinutes' | 'status'>>
 ): Promise<void> {
   const fields: string[] = [];
   const values: (string | number)[] = [];
@@ -106,6 +103,10 @@ export async function updateGoal(
   if (data.dailyMinutes !== undefined) {
     fields.push('daily_minutes = ?');
     values.push(data.dailyMinutes);
+  }
+  if (data.status !== undefined) {
+    fields.push('status = ?');
+    values.push(data.status);
   }
   if (fields.length === 0) return;
 

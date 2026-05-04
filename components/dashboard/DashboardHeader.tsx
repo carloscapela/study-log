@@ -1,14 +1,15 @@
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface Props {
     userName: string;
     nickname: string;
     formattedDate: string;
+    onAvatarPress: () => void;
 }
 
-export function DashboardHeader({ userName, nickname, formattedDate }: Props) {
+export function DashboardHeader({ userName, nickname, formattedDate, onAvatarPress }: Props) {
     const scheme = useColorScheme() ?? "light";
     const colors = Colors[scheme];
 
@@ -30,11 +31,13 @@ export function DashboardHeader({ userName, nickname, formattedDate }: Props) {
                     </Text>
                 )}
             </View>
-            <View
+            <TouchableOpacity
                 style={[
                     styles.avatar,
                     { backgroundColor: colors.cardFilledBackground },
                 ]}
+                onPress={onAvatarPress}
+                activeOpacity={0.8}
             >
                 <Text
                     style={[
@@ -44,7 +47,7 @@ export function DashboardHeader({ userName, nickname, formattedDate }: Props) {
                 >
                     {avatarLetter}
                 </Text>
-            </View>
+            </TouchableOpacity>
         </View>
     );
 }

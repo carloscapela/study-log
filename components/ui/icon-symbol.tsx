@@ -21,6 +21,7 @@ const MAPPING = {
   'person.fill': 'person',
   'clock.fill': 'history',
   'book.fill': 'menu-book',
+  'scope': 'gps-fixed',
 } as IconMapping;
 
 /**

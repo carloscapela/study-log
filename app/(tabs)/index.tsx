@@ -28,7 +28,7 @@ export default function HomeScreen() {
       ]}
       showsVerticalScrollIndicator={false}
     >
-      <DashboardHeader userName={userName} nickname={nickname} formattedDate={formattedDate} />
+      <DashboardHeader userName={userName} nickname={nickname} formattedDate={formattedDate} onAvatarPress={() => router.push('/perfil')} />
 
       <View style={styles.section}>
         <StatsRow goal={goal} />
