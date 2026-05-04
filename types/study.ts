@@ -15,6 +15,7 @@ export interface Subject {
 export interface StudySession {
   id: number;
   subjectId: number;
+  goalId: number | null;
   durationMinutes: number;
   startedAt: string; // ISO-8601
   notes: string | null;

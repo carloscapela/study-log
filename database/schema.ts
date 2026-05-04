@@ -39,4 +39,9 @@ export const MIGRATIONS = [
 
   `CREATE INDEX IF NOT EXISTS idx_study_goals_user_status
     ON study_goals(user_id, status)`,
+
+  `ALTER TABLE study_sessions ADD COLUMN goal_id INTEGER REFERENCES study_goals(id) ON DELETE SET NULL`,
+
+  `CREATE INDEX IF NOT EXISTS idx_study_sessions_goal_id
+    ON study_sessions(goal_id)`,
 ];

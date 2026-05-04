@@ -4,6 +4,7 @@ import type { StudySession, StudySessionWithSubject } from '@/types/study';
 type SessionRow = {
   id: number;
   subject_id: number;
+  goal_id: number | null;
   duration_minutes: number;
   started_at: string;
   notes: string | null;
@@ -19,6 +20,7 @@ function toSession(row: SessionRow): StudySession {
   return {
     id: row.id,
     subjectId: row.subject_id,
+    goalId: row.goal_id,
     durationMinutes: row.duration_minutes,
     startedAt: row.started_at,
     notes: row.notes,
@@ -34,13 +36,26 @@ function toSessionWithSubject(row: SessionWithSubjectRow): StudySessionWithSubje
   };
 }
 
+export async function getAllSessionsWithSubject(
+  db: SQLiteDatabase
+): Promise<StudySessionWithSubject[]> {
+  const rows = await db.getAllAsync<SessionWithSubjectRow>(
+    `SELECT ss.*, s.name AS subject_name, s.icon_letter AS subject_icon_letter
+     FROM study_sessions ss
+     JOIN subjects s ON s.id = ss.subject_id
+     ORDER BY ss.started_at DESC`
+  );
+  return rows.map(toSessionWithSubject);
+}
+
 export async function createStudySession(
   db: SQLiteDatabase,
-  data: Pick<StudySession, 'subjectId' | 'durationMinutes' | 'startedAt' | 'notes'>
+  data: Pick<StudySession, 'subjectId' | 'durationMinutes' | 'startedAt' | 'notes'> & { goalId?: number | null }
 ): Promise<StudySession> {
   const result = await db.runAsync(
-    'INSERT INTO study_sessions (subject_id, duration_minutes, started_at, notes) VALUES (?, ?, ?, ?)',
+    'INSERT INTO study_sessions (subject_id, goal_id, duration_minutes, started_at, notes) VALUES (?, ?, ?, ?, ?)',
     data.subjectId,
+    data.goalId ?? null,
     data.durationMinutes,
     data.startedAt,
     data.notes ?? null
