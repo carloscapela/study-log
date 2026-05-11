@@ -13,21 +13,6 @@ export const MIGRATIONS = [
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   )`,
 
-  `CREATE TABLE IF NOT EXISTS study_sessions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    subject_id INTEGER NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
-    duration_minutes INTEGER NOT NULL,
-    started_at TEXT NOT NULL,
-    notes TEXT,
-    created_at TEXT NOT NULL DEFAULT (datetime('now'))
-  )`,
-
-  `CREATE INDEX IF NOT EXISTS idx_study_sessions_subject_id
-    ON study_sessions(subject_id)`,
-
-  `CREATE INDEX IF NOT EXISTS idx_study_sessions_started_at
-    ON study_sessions(started_at)`,
-
   `CREATE TABLE IF NOT EXISTS study_goals (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -40,7 +25,21 @@ export const MIGRATIONS = [
   `CREATE INDEX IF NOT EXISTS idx_study_goals_user_status
     ON study_goals(user_id, status)`,
 
-  `ALTER TABLE study_sessions ADD COLUMN goal_id INTEGER REFERENCES study_goals(id) ON DELETE SET NULL`,
+  `CREATE TABLE IF NOT EXISTS study_sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    subject_id INTEGER NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
+    goal_id INTEGER REFERENCES study_goals(id) ON DELETE SET NULL,
+    duration_minutes INTEGER NOT NULL,
+    started_at TEXT NOT NULL,
+    notes TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  )`,
+
+  `CREATE INDEX IF NOT EXISTS idx_study_sessions_subject_id
+    ON study_sessions(subject_id)`,
+
+  `CREATE INDEX IF NOT EXISTS idx_study_sessions_started_at
+    ON study_sessions(started_at)`,
 
   `CREATE INDEX IF NOT EXISTS idx_study_sessions_goal_id
     ON study_sessions(goal_id)`,
