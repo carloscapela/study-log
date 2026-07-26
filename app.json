@@ -20,7 +20,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.AgendaConcurso"
+      "package": "com.carloscapela.agendaconcurso"
     },
     "web": {
       "output": "static",
